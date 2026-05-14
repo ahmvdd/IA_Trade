@@ -1,0 +1,102 @@
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Design tokens ── */
+:root {
+  --bg:       #0a0a0a;
+  --bg-panel: #0f0f0f;
+  --border:   #1e1e1e;
+  --text:     #e0e0e0;
+  --dim:      #555555;
+  --accent:   #00d4aa;
+  --sell:     #ff4444;
+  --hold:     #555555;
+  --font:     'IBM Plex Mono', 'Courier New', monospace;
+}
+
+/* ── Base ── */
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Signal text colors (global — used by both components) ── */
+.sig-buy  { color: var(--accent); }
+.sig-sell { color: var(--sell);   }
+.sig-hold { color: var(--hold);   }
+
+/* ── Shared loading / error states ── */
+.loading-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 0;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+}
+
+.cursor {
+  color: var(--accent);
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.error-msg {
+  padding: 48px 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--sell);
+}
+
+.empty-msg {
+  padding: 48px 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+}
+
+/* ── Page fade-in ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.page { animation: fadeIn 0.35s ease-out; }
+
+/* ── Tables (shared) ── */
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  color: var(--dim);
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  text-transform: uppercase;
+}
+
+tbody td {
+  font-size: 12px;
+  color: var(--text);
+  padding: 9px 10px;
+  border-bottom: 1px solid #111111;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:hover td { background: var(--bg-panel); }
+
+.td-num { text-align: right; }
+thead th.td-num { text-align: right; }

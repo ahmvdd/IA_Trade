@@ -1,0 +1,77 @@
+<div class="page">
+
+  <div class="page-header">
+    <span class="page-title">PAPER TRADING</span>
+    @if (totalTrades() > 0) {
+      <span class="trade-count">{{ totalTrades() }} CLOSED TRADES</span>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-text">FETCHING DATA<span class="cursor">▮</span></div>
+  } @else if (error()) {
+    <div class="error-msg">ERR  {{ error() }}</div>
+  } @else if (totalTrades() === 0) {
+    <div class="empty-msg">NO CLOSED TRADES — RUN fetch_prices.py TO GENERATE SIGNALS</div>
+  } @else {
+
+    <!-- ── Summary card ── -->
+    <div class="summary">
+      <div class="stat">
+        <span class="stat-label">TOTAL TRADES</span>
+        <span class="stat-value">{{ totalTrades() }}</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">WIN RATE</span>
+        <span class="stat-value" [class.accent]="winRate() >= 50">
+          {{ winRate() | number:'1.1-1' }}%
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">TOTAL P&amp;L</span>
+        <span class="stat-value" [class.accent]="totalPnl() >= 0" [class.loss]="totalPnl() < 0">
+          {{ totalPnl() >= 0 ? '+' : '' }}{{ totalPnl() | number:'1.2-2' }}$
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">CAPITAL</span>
+        <span class="stat-value">{{ currentCapital() | number:'1.2-2' }}$</span>
+      </div>
+    </div>
+
+    <!-- ── Trades table ── -->
+    <table>
+      <thead>
+        <tr>
+          <th>ASSET</th>
+          <th>ENTRY DATE</th>
+          <th class="td-num">ENTRY $</th>
+          <th>EXIT DATE</th>
+          <th class="td-num">EXIT $</th>
+          <th class="td-num">P&amp;L $</th>
+          <th class="td-num">P&amp;L %</th>
+          <th>RESULT</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of trades(); track t['Entry Date']) {
+          <tr [class]="t.Result === 'WIN' ? 'row-win' : 'row-loss'">
+            <td>{{ t.Asset }}</td>
+            <td class="td-date">{{ t['Entry Date'] }}</td>
+            <td class="td-num">{{ t['Entry Price'] | number:'1.2-2' }}</td>
+            <td class="td-date">{{ t['Exit Date'] }}</td>
+            <td class="td-num">{{ t['Exit Price'] | number:'1.2-2' }}</td>
+            <td class="td-num" [class.accent]="t['PnL $'] >= 0" [class.loss]="t['PnL $'] < 0">
+              {{ t['PnL $'] >= 0 ? '+' : '' }}{{ t['PnL $'] | number:'1.2-2' }}
+            </td>
+            <td class="td-num" [class.accent]="t['PnL %'] >= 0" [class.loss]="t['PnL %'] < 0">
+              {{ t['PnL %'] >= 0 ? '+' : '' }}{{ t['PnL %'] | number:'1.2-2' }}%
+            </td>
+            <td [class]="t.Result === 'WIN' ? 'result-win' : 'result-loss'">{{ t.Result }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+</div>

@@ -1,0 +1,22 @@
+# ── Other projects in this workspace (not part of IA_Trade) ──────────────────
+/app/
+/app angular/
+/fake-api-app/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+
+# ── Node / Angular ────────────────────────────────────────────────────────────
+node_modules/
+dist/
+.angular/
+npm-debug.log
+yarn-error.log
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

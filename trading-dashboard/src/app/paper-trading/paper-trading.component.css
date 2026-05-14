@@ -1,0 +1,68 @@
+.page { max-width: 1000px; }
+
+/* ── Header ── */
+.page-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #1e1e1e;
+}
+
+.page-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  color: #e0e0e0;
+}
+
+.trade-count {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #444444;
+}
+
+/* ── Summary card ── */
+.summary {
+  display: flex;
+  gap: 48px;
+  padding: 16px 0 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #1e1e1e;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  color: #444444;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #e0e0e0;
+  letter-spacing: 0.02em;
+}
+
+/* ── Table row tints ── */
+.row-win  { background: rgba(0, 212, 170, 0.04); }
+.row-loss { background: rgba(255, 68,  68,  0.04); }
+
+/* ── Result badge ── */
+.result-win  { color: #00d4aa; font-weight: 600; letter-spacing: 0.08em; }
+.result-loss { color: #ff4444; font-weight: 600; letter-spacing: 0.08em; }
+
+/* ── Shared helpers ── */
+.accent { color: #00d4aa; }
+.loss   { color: #ff4444; }
+.td-date { color: #666666; font-size: 11px; }

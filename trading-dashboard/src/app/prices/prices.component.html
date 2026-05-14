@@ -1,0 +1,70 @@
+<div class="page">
+
+  <!-- ── Top bar: asset selector + live stats ── -->
+  <div class="topbar">
+    <select class="asset-select" [value]="selectedTicker()" (change)="onAssetChange($event)">
+      @for (asset of assets; track asset.ticker) {
+        <option [value]="asset.ticker">{{ asset.label }}</option>
+      }
+    </select>
+
+    @if (latestRow(); as row) {
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-label">LAST</span>
+          <span class="stat-value accent">{{ animatedClose() | number:'1.2-2' }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">RSI(14)</span>
+          <span [class]="'stat-value ' + rsiClass(row.RSI)">
+            {{ animatedRsi() | number:'1.1-1' }}
+          </span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">SIGNAL</span>
+          <span [class]="'stat-value sig-' + row.Signal.toLowerCase()">{{ row.Signal }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- ── States ── -->
+  @if (loading()) {
+    <div class="loading-text">FETCHING DATA<span class="cursor">▮</span></div>
+  } @else if (error()) {
+    <div class="error-msg">ERR  {{ error() }}</div>
+  } @else if (allRows().length > 0) {
+
+    <!-- ── Chart ── -->
+    <div class="chart-wrap">
+      <canvas baseChart [data]="chartData()" [options]="chartOptions" type="line"></canvas>
+    </div>
+
+    <!-- ── Table: last 10 rows ── -->
+    <table>
+      <thead>
+        <tr>
+          <th>DATE</th>
+          <th class="td-num">CLOSE</th>
+          <th class="td-num">RSI</th>
+          <th class="td-num">SMA 20</th>
+          <th class="td-num">SMA 50</th>
+          <th>SIGNAL</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.date) {
+          <tr>
+            <td class="td-date">{{ row.date }}</td>
+            <td class="td-num">{{ row.Close  | number:'1.2-2' }}</td>
+            <td class="td-num">{{ row.RSI    | number:'1.1-1' }}</td>
+            <td class="td-num">{{ row.SMA_20 | number:'1.2-2' }}</td>
+            <td class="td-num">{{ row.SMA_50 | number:'1.2-2' }}</td>
+            <td [class]="'sig-' + row.Signal.toLowerCase()">{{ row.Signal }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+</div>

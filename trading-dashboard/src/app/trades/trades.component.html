@@ -1,0 +1,43 @@
+<div class="page">
+
+  <div class="page-header">
+    <span class="page-title">TRADE LOG</span>
+    @if (trades().length > 0) {
+      <span class="trade-count">{{ trades().length }} EVENTS</span>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loading-text">FETCHING DATA<span class="cursor">▮</span></div>
+  } @else if (error()) {
+    <div class="error-msg">ERR  {{ error() }}</div>
+  } @else if (trades().length === 0) {
+    <div class="empty-msg">NO SIGNAL CHANGES — RUN fetch_prices.py TO GENERATE SIGNALS</div>
+  } @else {
+    <table>
+      <thead>
+        <tr>
+          <th>DATE</th>
+          <th>ASSET</th>
+          <th>SIGNAL</th>
+          <th class="td-num">PRICE</th>
+          <th class="td-num">RSI</th>
+          <th class="td-num">SMA 20</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (t of trades(); track t.Date) {
+          <tr>
+            <td class="td-date">{{ t.Date }}</td>
+            <td>{{ t.Asset }}</td>
+            <td [class]="'sig-' + t.Signal.toLowerCase()">{{ t.Signal }}</td>
+            <td class="td-num">{{ t.Close  | number:'1.2-2' }}</td>
+            <td class="td-num">{{ t.RSI    | number:'1.1-1' }}</td>
+            <td class="td-num">{{ t.SMA_20 | number:'1.2-2' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+</div>
