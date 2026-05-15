@@ -11,6 +11,7 @@ export interface PriceRecord {
   SMA_20: number | null;  // null for the first ~20 warm-up rows
   SMA_50: number | null;  // null for the first ~50 warm-up rows
   Signal: 'BUY' | 'SELL' | 'HOLD';
+  ML_Signal?: 'BUY' | 'SELL' | 'HOLD';  // present only from /ml-signals endpoint
 }
 
 export interface PricesResponse {

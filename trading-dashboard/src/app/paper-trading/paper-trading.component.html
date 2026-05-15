@@ -15,7 +15,7 @@
     <div class="empty-msg">NO CLOSED TRADES — RUN fetch_prices.py TO GENERATE SIGNALS</div>
   } @else {
 
-    <!-- ── Summary card ── -->
+    <!-- ── Summary card — main row ── -->
     <div class="summary">
       <div class="stat">
         <span class="stat-label">TOTAL TRADES</span>
@@ -23,8 +23,14 @@
       </div>
       <div class="stat">
         <span class="stat-label">WIN RATE</span>
-        <span class="stat-value" [class.accent]="winRate() >= 50">
+        <span class="stat-value" [class.accent]="winRate() >= 50" [class.loss]="winRate() < 50">
           {{ winRate() | number:'1.1-1' }}%
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">LOSS RATE</span>
+        <span class="stat-value" [class.loss]="lossRate() > 50" [class.accent]="lossRate() <= 50">
+          {{ lossRate() | number:'1.1-1' }}%
         </span>
       </div>
       <div class="stat">
@@ -36,6 +42,28 @@
       <div class="stat">
         <span class="stat-label">CAPITAL</span>
         <span class="stat-value">{{ currentCapital() | number:'1.2-2' }}$</span>
+      </div>
+    </div>
+
+    <!-- ── Summary card — averages row ── -->
+    <div class="summary summary-sm">
+      <div class="stat">
+        <span class="stat-label">AVG WIN</span>
+        <span class="stat-value-sm accent">
+          {{ avgWin() >= 0 ? '+' : '' }}{{ avgWin() | number:'1.2-2' }}$
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">AVG LOSS</span>
+        <span class="stat-value-sm loss">
+          {{ avgLoss() | number:'1.2-2' }}$
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">AVG P&amp;L / TRADE</span>
+        <span class="stat-value-sm" [class.accent]="avgPnl() >= 0" [class.loss]="avgPnl() < 0">
+          {{ avgPnl() >= 0 ? '+' : '' }}{{ avgPnl() | number:'1.2-2' }}$
+        </span>
       </div>
     </div>
 

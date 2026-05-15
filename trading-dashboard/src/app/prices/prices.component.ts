@@ -197,7 +197,7 @@ export class PricesComponent implements OnInit {
     this.allRows.set([]);
     this.rows.set([]);
 
-    this.api.getPrices(this.selectedTicker()).subscribe({
+    this.api.getMlSignals(this.selectedTicker()).subscribe({
       next: (res) => {
         this.allRows.set(res.data);
         this.rows.set(res.data.slice(-10));

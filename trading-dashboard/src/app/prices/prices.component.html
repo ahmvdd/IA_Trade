@@ -24,6 +24,12 @@
           <span class="stat-label">SIGNAL</span>
           <span [class]="'stat-value sig-' + row.Signal.toLowerCase()">{{ row.Signal }}</span>
         </div>
+        @if (row.ML_Signal) {
+          <div class="stat">
+            <span class="stat-label">ML SIGNAL</span>
+            <span [class]="'stat-value sig-' + row.ML_Signal.toLowerCase()">{{ row.ML_Signal }}</span>
+          </div>
+        }
       </div>
     }
   </div>
@@ -50,6 +56,7 @@
           <th class="td-num">SMA 20</th>
           <th class="td-num">SMA 50</th>
           <th>SIGNAL</th>
+          <th>ML SIGNAL</th>
         </tr>
       </thead>
       <tbody>
@@ -61,6 +68,9 @@
             <td class="td-num">{{ row.SMA_20 | number:'1.2-2' }}</td>
             <td class="td-num">{{ row.SMA_50 | number:'1.2-2' }}</td>
             <td [class]="'sig-' + row.Signal.toLowerCase()">{{ row.Signal }}</td>
+            <td [class]="row.ML_Signal ? 'sig-' + row.ML_Signal.toLowerCase() : 'sig-hold'">
+              {{ row.ML_Signal ?? '—' }}
+            </td>
           </tr>
         }
       </tbody>

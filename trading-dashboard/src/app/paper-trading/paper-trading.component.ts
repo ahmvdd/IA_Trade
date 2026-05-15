@@ -28,11 +28,31 @@ export class PaperTradingComponent implements OnInit {
     return (t.filter(r => r.Result === 'WIN').length / t.length) * 100;
   });
 
+  lossRate = computed(() => this.totalTrades() === 0 ? 0 : 100 - this.winRate());
+
   totalPnl = computed(() =>
     this.trades().reduce((sum, r) => sum + r['PnL $'], 0)
   );
 
   currentCapital = computed(() => STARTING_CAPITAL + this.totalPnl());
+
+  avgWin = computed(() => {
+    const wins = this.trades().filter(r => r.Result === 'WIN');
+    if (wins.length === 0) return 0;
+    return wins.reduce((sum, r) => sum + r['PnL $'], 0) / wins.length;
+  });
+
+  avgLoss = computed(() => {
+    const losses = this.trades().filter(r => r.Result === 'LOSS');
+    if (losses.length === 0) return 0;
+    return losses.reduce((sum, r) => sum + r['PnL $'], 0) / losses.length;
+  });
+
+  avgPnl = computed(() => {
+    const t = this.trades();
+    if (t.length === 0) return 0;
+    return t.reduce((sum, r) => sum + r['PnL $'], 0) / t.length;
+  });
 
   ngOnInit(): void {
     this.loading.set(true);

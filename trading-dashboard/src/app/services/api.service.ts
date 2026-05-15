@@ -20,4 +20,8 @@ export class ApiService {
   getPaperTrades(): Observable<PaperTradesResponse> {
     return this.http.get<PaperTradesResponse>(`${API_BASE}/paper-trades`);
   }
+
+  getMlSignals(ticker: string): Observable<PricesResponse> {
+    return this.http.get<PricesResponse>(`${API_BASE}/ml-signals/${ticker}`);
+  }
 }

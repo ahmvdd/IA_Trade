@@ -19,6 +19,7 @@ import pandas as pd
 from fetch_prices import fetch, add_indicators, add_signals, COMMODITIES
 from logger import TRADES_CSV
 from paper_trading import PAPER_TRADES_CSV
+from ml_model import predict_signal
 
 app = Flask(__name__)
 CORS(app)  # allow requests from the Angular dev server on port 4200
@@ -121,6 +122,41 @@ def get_paper_trades():
     return jsonify({
         "count":  len(df),
         "trades": df.to_dict(orient="records"),
+    })
+
+
+@app.route("/ml-signals/<asset>", methods=["GET"])
+def get_ml_signals(asset: str):
+    """
+    Return the last 30 days of OHLCV + indicators with both the rule-based
+    Signal and the Random Forest ML_Signal for comparison.
+
+    Requires the model to have been trained first (run fetch_prices.py).
+
+    Example:
+      GET /ml-signals/GC=F
+    """
+    if asset not in VALID_TICKERS:
+        return jsonify({
+            "error": f"Unknown asset '{asset}'. Valid tickers: {sorted(VALID_TICKERS)}"
+        }), 404
+
+    try:
+        df = fetch(asset)
+        df = add_indicators(df)
+        df = add_signals(df)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 503
+
+    df["ML_Signal"] = predict_signal(df, asset)
+
+    records = df_to_records(df.tail(30))
+
+    return jsonify({
+        "asset": asset,
+        "name":  TICKER_TO_NAME[asset],
+        "count": len(records),
+        "data":  records,
     })
 
 

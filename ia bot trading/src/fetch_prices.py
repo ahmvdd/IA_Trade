@@ -11,6 +11,7 @@ from ta.momentum import RSIIndicator
 from ta.trend import SMAIndicator
 from logger import log_signals
 from paper_trading import run_paper_trading, run_backtest, reset_paper_trades
+from ml_model import train_model, predict_signal
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
@@ -104,11 +105,17 @@ def print_table(name: str, df: pd.DataFrame) -> None:
         return "   HOLD"
 
     tail["Signal"] = tail["Signal"].apply(fmt_signal)
+    if "ML_Signal" in tail.columns:
+        tail["ML_Signal"] = tail["ML_Signal"].apply(fmt_signal)
+
+    cols = ["Close", "RSI", "SMA_20", "SMA_50", "Signal"]
+    if "ML_Signal" in df.columns:
+        cols.append("ML_Signal")
 
     print(f"\n{'='*75}")
     print(f"  {name}  — last {DISPLAY_ROWS} trading days  (indicators computed on {len(df)} days)")
     print(f"{'='*75}")
-    print(tail[["Close", "RSI", "SMA_20", "SMA_50", "Signal"]].to_string())
+    print(tail[cols].to_string())
     print()
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -122,6 +129,8 @@ def main() -> None:
             df = fetch(ticker)
             df = add_indicators(df)
             df = add_signals(df)
+            train_model(ticker, name)                    # train RF on 2y data, save .pkl
+            df["ML_Signal"] = predict_signal(df, ticker) # add ML column to 90-day df
             print_table(name, df)
             log_signals(df, name)
             run_backtest(ticker, name)   # 2-year historical simulation (overwrites CSV)
