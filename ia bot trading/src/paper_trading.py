@@ -12,21 +12,65 @@ Rules:
 """
 
 import pandas as pd
+import numpy as np
 from pathlib import Path
 
 STARTING_CAPITAL = 10_000.0
+RISK_FREE_RATE   = 0.05   # annualised, used for Sharpe Ratio (US T-bill ~5%)
 BACKTEST_PERIOD  = "2y"      # enough data for multiple BUY→SELL cycles
 
 LOGS_DIR         = Path(__file__).parent.parent / "logs"
 PAPER_TRADES_CSV = LOGS_DIR / "paper_trades.csv"
 
+COL_PNL_DOLLAR = "PnL $"
+COL_PNL_PCT    = "PnL %"
+
 COLUMNS = [
     "Asset",
     "Entry Date", "Entry Price",
     "Exit Date",  "Exit Price",
-    "PnL $", "PnL %",
+    COL_PNL_DOLLAR, COL_PNL_PCT,
     "Result",
 ]
+
+
+# ── Financial metrics ─────────────────────────────────────────────────────────
+
+def compute_metrics(trades: pd.DataFrame) -> dict:
+    """
+    Compute Sharpe Ratio, Max Drawdown, and Win Rate from closed trades.
+
+    - Sharpe  : annualised (sqrt(252)) using per-trade % returns
+    - Drawdown: max peak-to-trough loss on cumulative P&L curve
+    - Win Rate: % of trades with positive P&L
+    """
+    if trades.empty:
+        return {"sharpe": None, "max_drawdown": None, "win_rate": None, "total_trades": 0}
+
+    returns = trades[COL_PNL_PCT].values / 100   # decimal form
+
+    # Sharpe — annualise assuming ~252 trading days per year
+    mean_r = np.mean(returns)
+    std_r  = np.std(returns, ddof=1)
+    daily_rf = RISK_FREE_RATE / 252
+    sharpe = float((mean_r - daily_rf) / std_r * np.sqrt(252)) if std_r > 0 else None
+
+    # Max Drawdown on cumulative P&L curve
+    cumulative  = np.cumsum(trades[COL_PNL_DOLLAR].values)
+    running_max = np.maximum.accumulate(cumulative)
+    drawdowns   = cumulative - running_max
+    max_drawdown = float(drawdowns.min())
+
+    wins     = (trades["Result"] == "WIN").sum()
+    win_rate = float(wins / len(trades) * 100)
+
+    return {
+        "sharpe":       round(sharpe, 3) if sharpe is not None else None,
+        "max_drawdown": round(max_drawdown, 2),
+        "win_rate":     round(win_rate, 1),
+        "total_trades": len(trades),
+        "total_pnl":    round(float(trades[COL_PNL_DOLLAR].sum()), 2),
+    }
 
 
 # ── Core simulation ───────────────────────────────────────────────────────────
@@ -54,8 +98,8 @@ def run_simulation(df: pd.DataFrame, asset_name: str) -> pd.DataFrame:
                 "Entry Price": round(entry_price, 2),
                 "Exit Date":   str(date),
                 "Exit Price":  round(price, 2),
-                "PnL $":       round(pnl_dollar, 2),
-                "PnL %":       round(pnl_pct, 4),
+                COL_PNL_DOLLAR:       round(pnl_dollar, 2),
+                COL_PNL_PCT:       round(pnl_pct, 4),
                 "Result":      "WIN" if pnl_dollar > 0 else "LOSS",
             })
             position = None
@@ -97,7 +141,7 @@ def print_summary(trades: pd.DataFrame, asset_name: str, label: str = "Paper Tra
     total_trades = len(trades)
     wins         = (trades["Result"] == "WIN").sum()
     win_rate     = wins / total_trades * 100
-    total_pnl    = trades["PnL $"].sum()
+    total_pnl    = trades[COL_PNL_DOLLAR].sum()
     capital      = STARTING_CAPITAL + total_pnl
 
     for _, t in trades.iterrows():

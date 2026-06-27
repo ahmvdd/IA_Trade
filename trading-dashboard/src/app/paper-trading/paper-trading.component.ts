@@ -54,6 +54,33 @@ export class PaperTradingComponent implements OnInit {
     return t.reduce((sum, r) => sum + r['PnL $'], 0) / t.length;
   });
 
+  // ── Financial metrics (BNP-level) ─────────────────────────────────────────
+
+  sharpeRatio = computed(() => {
+    const t = this.trades();
+    if (t.length < 2) return null;
+    const returns = t.map(r => r['PnL %'] / 100);
+    const mean    = returns.reduce((a, b) => a + b, 0) / returns.length;
+    const variance = returns.reduce((sum, r) => sum + (r - mean) ** 2, 0) / (returns.length - 1);
+    const std     = Math.sqrt(variance);
+    if (std === 0) return null;
+    const dailyRf = 0.05 / 252;
+    return ((mean - dailyRf) / std) * Math.sqrt(252);
+  });
+
+  maxDrawdown = computed(() => {
+    const t = this.trades();
+    if (t.length === 0) return 0;
+    let peak = 0, maxDd = 0, cumulative = 0;
+    for (const trade of t) {
+      cumulative += trade['PnL $'];
+      if (cumulative > peak) peak = cumulative;
+      const dd = cumulative - peak;
+      if (dd < maxDd) maxDd = dd;
+    }
+    return maxDd;
+  });
+
   ngOnInit(): void {
     this.loading.set(true);
 

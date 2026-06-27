@@ -15,8 +15,11 @@ export class PricesComponent implements OnInit {
   private api = inject(ApiService);
 
   readonly assets = [
-    { label: 'GOLD / USD', ticker: 'GC=F' },
-    { label: 'OIL  / USD', ticker: 'CL=F' },
+    { label: 'GOLD    / USD', ticker: 'GC=F'    },
+    { label: 'OIL     / USD', ticker: 'CL=F'    },
+    { label: 'BITCOIN / USD', ticker: 'BTC-USD'  },
+    { label: 'APPLE   / USD', ticker: 'AAPL'     },
+    { label: 'S&P 500       ', ticker: '^GSPC'   },
   ];
 
   readonly displayedColumns = ['date', 'close', 'rsi', 'sma20', 'sma50', 'signal'];

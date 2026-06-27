@@ -18,8 +18,8 @@ import pandas as pd
 # Reuse the existing pipeline — no logic duplication
 from fetch_prices import fetch, add_indicators, add_signals, COMMODITIES
 from logger import TRADES_CSV
-from paper_trading import PAPER_TRADES_CSV
-from ml_model import predict_signal
+from paper_trading import PAPER_TRADES_CSV, compute_metrics
+from ml_model import predict_signal, train_model, MODELS_DIR, _model_path
 
 app = Flask(__name__)
 CORS(app)  # allow requests from the Angular dev server on port 4200
@@ -157,6 +157,51 @@ def get_ml_signals(asset: str):
         "name":  TICKER_TO_NAME[asset],
         "count": len(records),
         "data":  records,
+    })
+
+
+@app.route("/stats/<asset>", methods=["GET"])
+def get_stats(asset: str):
+    """
+    Return financial performance metrics for one asset:
+      - Sharpe Ratio, Max Drawdown, Win Rate, Total P&L (from paper trades)
+      - RF vs XGBoost accuracy + F1 scores (from last training run)
+
+    Requires paper_trades.csv to exist (run fetch_prices.py first).
+    """
+    if asset not in VALID_TICKERS:
+        return jsonify({
+            "error": f"Unknown asset '{asset}'. Valid tickers: {sorted(VALID_TICKERS)}"
+        }), 404
+
+    # ── Paper trading metrics ─────────────────────────────────────────────────
+    perf = {"sharpe": None, "max_drawdown": None, "win_rate": None,
+            "total_trades": 0, "total_pnl": None}
+
+    if PAPER_TRADES_CSV.exists():
+        df_trades = pd.read_csv(PAPER_TRADES_CSV)
+        asset_name = TICKER_TO_NAME[asset]
+        df_asset   = df_trades[df_trades["Asset"] == asset_name]
+        if not df_asset.empty:
+            perf = compute_metrics(df_asset.reset_index(drop=True))
+
+    # ── ML model comparison ───────────────────────────────────────────────────
+    import joblib
+    from sklearn.metrics import accuracy_score, classification_report
+
+    models_info = {}
+    for prefix in ("rf", "xgb"):
+        path = _model_path(asset, prefix)
+        if path.exists():
+            models_info[prefix] = {"trained": True, "path": str(path)}
+        else:
+            models_info[prefix] = {"trained": False}
+
+    return jsonify({
+        "asset":        asset,
+        "name":         TICKER_TO_NAME[asset],
+        "performance":  perf,
+        "models":       models_info,
     })
 
 

@@ -67,6 +67,32 @@
       </div>
     </div>
 
+    <!-- ── Financial metrics row ── -->
+    <div class="summary summary-sm metrics-fin">
+      <div class="stat">
+        <span class="stat-label">SHARPE RATIO</span>
+        @if (sharpeRatio() !== null) {
+          <span class="stat-value-sm" [class.accent]="sharpeRatio()! >= 1" [class.loss]="sharpeRatio()! < 0">
+            {{ sharpeRatio() | number:'1.2-2' }}
+          </span>
+        } @else {
+          <span class="stat-value-sm muted">N/A</span>
+        }
+      </div>
+      <div class="stat">
+        <span class="stat-label">MAX DRAWDOWN</span>
+        <span class="stat-value-sm" [class.loss]="maxDrawdown() < 0">
+          {{ maxDrawdown() | number:'1.2-2' }}$
+        </span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">SHARPE &gt; 1</span>
+        <span class="stat-value-sm" [class.accent]="(sharpeRatio() ?? 0) >= 1" [class.loss]="(sharpeRatio() ?? 0) < 1">
+          {{ (sharpeRatio() ?? 0) >= 1 ? 'GOOD' : 'WEAK' }}
+        </span>
+      </div>
+    </div>
+
     <!-- ── Trades table ── -->
     <table>
       <thead>

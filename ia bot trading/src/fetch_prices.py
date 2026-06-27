@@ -8,7 +8,7 @@ prints the last 10 rows with all columns.
 import yfinance as yf
 import pandas as pd
 from ta.momentum import RSIIndicator
-from ta.trend import SMAIndicator
+from ta.trend import SMAIndicator, MACD
 from logger import log_signals
 from paper_trading import run_paper_trading, run_backtest, reset_paper_trades
 from ml_model import train_model, predict_signal
@@ -16,8 +16,11 @@ from ml_model import train_model, predict_signal
 # ── Configuration ────────────────────────────────────────────────────────────
 
 COMMODITIES = {
-    "Gold": "GC=F",
-    "Oil":  "CL=F",
+    "Gold":    "GC=F",
+    "Oil":     "CL=F",
+    "Bitcoin": "BTC-USD",
+    "Apple":   "AAPL",
+    "S&P 500": "^GSPC",
 }
 
 # We fetch 90 days so that SMA-50 and RSI-14 have enough warm-up rows.
@@ -52,12 +55,17 @@ def fetch(ticker: str, period: str = FETCH_PERIOD) -> pd.DataFrame:
 # ── Indicators ────────────────────────────────────────────────────────────────
 
 def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
-    """Compute RSI-14, SMA-20, and SMA-50 and append them as new columns."""
+    """Compute RSI-14, SMA-20, SMA-50, and MACD and append them as new columns."""
     close = df["Close"]
 
     df["RSI"]    = RSIIndicator(close=close, window=RSI_PERIOD).rsi().round(2)
     df["SMA_20"] = SMAIndicator(close=close, window=SMA_SHORT).sma_indicator().round(2)
     df["SMA_50"] = SMAIndicator(close=close, window=SMA_LONG).sma_indicator().round(2)
+
+    macd = MACD(close=close)
+    df["macd"]        = macd.macd().round(4)
+    df["macd_signal"] = macd.macd_signal().round(4)
+    df["macd_diff"]   = macd.macd_diff().round(4)
 
     return df
 
